@@ -30,7 +30,17 @@ jobs:
     - name: Nuget Restore
       run: nuget.exe restore ntttcp.sln
     - name: Build
-      run: msbuild ntttcp.sln /p:Configuration=Release /p:Platform=${{ matrix.platform }}
+      # Diagnostic override (temporary, drop before any upstream PR): the
+      # project hardcodes UndockedUseDriverToolset=true (WindowsApplication
+      # ForDrivers10.0 toolset). A binary built that way through this exact
+      # CI pipeline hangs at runtime on a live WS2025 test (near-0% CPU, no
+      # output, not even respecting -to) - reproduced with BOTH the jitter
+      # fix and an unmodified checkout, so it is a build-toolset question,
+      # not a source-code one. /p: on the command line overrides the
+      # project's own unconditional assignment (MSBuild global properties
+      # win over in-project PropertyGroups). Forcing the standard v143
+      # desktop toolset here to test that hypothesis directly.
+      run: msbuild ntttcp.sln /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:UndockedUseDriverToolset=false
     - name: Upload
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
