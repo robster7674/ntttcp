@@ -5,6 +5,10 @@ on:
     branches: main
   pull_request:
     branches: main
+  # Fork-only, temporary: lets this branch's own CI build be triggered on
+  # demand without pushing to main or opening a PR yet, to build and live-test
+  # a fix before proposing it upstream. Drop this before filing the real PR.
+  workflow_dispatch:
 
 permissions: read-all
 
